@@ -57,6 +57,40 @@ body {
   margin-top: 2px;
 }
 
+.mode-switch {
+  display: flex;
+  margin-top: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 7px 4px;
+  border: none;
+  background: #fff;
+  color: #4a5568;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  border-right: 1px solid #e2e8f0;
+}
+
+.mode-btn:last-child {
+  border-right: none;
+}
+
+.mode-btn:hover {
+  background: #f7fafc;
+}
+
+.mode-btn.active {
+  background: #4299e1;
+  color: #fff;
+}
+
 .switch {
   position: relative;
   display: inline-block;

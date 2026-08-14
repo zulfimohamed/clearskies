@@ -15,17 +15,27 @@
   </header>
 
   <section class="section">
+    <div class="row-title">Mode on this site</div>
+    <div class="row-sub" id="site-label">this page</div>
+    <div class="mode-switch" id="mode-switch" role="radiogroup">
+      <button type="button" class="mode-btn" data-mode="off">Off</button>
+      <button type="button" class="mode-btn" data-mode="decode">Decode</button>
+      <button type="button" class="mode-btn" data-mode="turbulence">Turbulence</button>
+    </div>
+    <div class="row-sub" id="jargon-count"></div>
+  </section>
+
+  <section class="section">
     <div class="row">
       <div>
-        <div class="row-title">Decode on this site</div>
-        <div class="row-sub" id="site-label">this page</div>
+        <div class="row-title">🔔 Seatbelt chime</div>
+        <div class="row-sub">Ding once if a page hits severe turbulence (off by default)</div>
       </div>
       <label class="switch">
-        <input type="checkbox" id="toggle-decode" />
+        <input type="checkbox" id="toggle-chime" />
         <span class="slider"></span>
       </label>
     </div>
-    <div class="row-sub" id="jargon-count"></div>
   </section>
 
   <section class="section">

@@ -39,6 +39,61 @@
   pointer-events: none;
 }
 
+/* Turbulence mode: no underline/tooltip, shake instead */
+html[data-clearskies-mode="turbulence"] .clearskies-term {
+  text-decoration: none;
+  cursor: default;
+  display: inline-block;
+}
+
+html[data-clearskies-mode="turbulence"] .clearskies-term:hover::after,
+html[data-clearskies-mode="turbulence"] .clearskies-term:hover::before {
+  content: none;
+}
+
+@keyframes clearskies-shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
+
+.clearskies-shake {
+  animation: clearskies-shake 0.5s ease;
+}
+
+.clearskies-seatbelt {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  z-index: 2147483647;
+  transition: background-color 0.2s ease;
+  pointer-events: none;
+}
+
+.clearskies-seatbelt[data-level="clear"] {
+  background: #38a169;
+}
+
+.clearskies-seatbelt[data-level="light"] {
+  background: #d69e2e;
+}
+
+.clearskies-seatbelt[data-level="moderate"] {
+  background: #dd6b20;
+}
+
+.clearskies-seatbelt[data-level="severe"] {
+  background: #e53e3e;
+}
+
 .clearskies-toast {
   position: fixed;
   bottom: 24px;

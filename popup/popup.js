@@ -1,7 +1,9 @@
 (async function () {
   const siteLabel = document.getElementById("site-label");
   const jargonCount = document.getElementById("jargon-count");
-  const toggle = document.getElementById("toggle-decode");
+  const modeSwitch = document.getElementById("mode-switch");
+  const modeButtons = Array.from(modeSwitch.querySelectorAll(".mode-btn"));
+  const toggleChime = document.getElementById("toggle-chime");
   const inputText = document.getElementById("input-text");
   const corporateifyBtn = document.getElementById("corporateify-btn");
   const outputWrap = document.getElementById("output-wrap");
@@ -50,6 +52,10 @@
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   const isScriptable = tab && tab.url && /^https?:\/\//.test(tab.url);
 
+  function setActiveModeButton(mode) {
+    modeButtons.forEach((btn) => btn.classList.toggle("active", btn.dataset.mode === mode));
+  }
+
   if (isScriptable) {
     try {
       const url = new URL(tab.url);
@@ -60,9 +66,9 @@
 
     try {
       const state = await chrome.tabs.sendMessage(tab.id, { type: "CLEARSKIES_GET_STATE" });
-      toggle.checked = !!state.enabled;
+      setActiveModeButton(state.mode || "decode");
     } catch (e) {
-      toggle.checked = true;
+      setActiveModeButton("decode");
     }
 
     try {
@@ -75,20 +81,29 @@
     }
   } else {
     siteLabel.textContent = "not available on this page";
-    toggle.disabled = true;
+    modeButtons.forEach((btn) => (btn.disabled = true));
     jargonCount.textContent = "";
   }
 
-  toggle.addEventListener("change", async () => {
-    if (!isScriptable) return;
-    try {
-      await chrome.tabs.sendMessage(tab.id, {
-        type: "CLEARSKIES_TOGGLE",
-        enabled: toggle.checked,
-      });
-    } catch (e) {
-      // content script not present on this page; nothing to do
-    }
+  modeButtons.forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      if (!isScriptable) return;
+      setActiveModeButton(btn.dataset.mode);
+      try {
+        await chrome.tabs.sendMessage(tab.id, {
+          type: "CLEARSKIES_SET_MODE",
+          mode: btn.dataset.mode,
+        });
+      } catch (e) {
+        // content script not present on this page; nothing to do
+      }
+    });
+  });
+
+  const chimeSettings = await chrome.storage.local.get("clearskies_chime_enabled");
+  toggleChime.checked = !!chimeSettings.clearskies_chime_enabled;
+  toggleChime.addEventListener("change", () => {
+    chrome.storage.local.set({ clearskies_chime_enabled: toggleChime.checked });
   });
 
   const storageKeys = ["clearskies_ai_enabled", "clearskies_ai_provider"];

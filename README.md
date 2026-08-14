@@ -4,8 +4,11 @@ A Chrome extension that translates corporate jargon on any page — and, in reve
 
 ## What it does
 
-- **Decode mode** — runs on any webpage, underlines known buzzwords/jargon, and shows the plain-English meaning on hover. The extension badge shows how many jargon terms were found on the page. Toggle it on/off per-site from the popup.
+- **Decode mode** — runs on any webpage, underlines known buzzwords/jargon, and shows the plain-English meaning on hover. The extension badge shows how many jargon terms were found on the page.
+- **Turbulence mode** — same jargon detection as Decode, louder presentation: each match shakes as it scrolls into view, and a floating "seatbelt sign" badge in the corner reports local jargon density (Light chop → Moderate turbulence → Severe turbulence — brace for impact) as you scroll. Optionally dings once (a synthesized chime, off by default) if a page hits severe.
 - **Corporate-ify mode** — select any text on a page and right-click → "Corporate-ify this" for an instant insufferable-consultant-speak rewrite, shown in a floating card with a Copy button. Or open the popup, paste text, and hit "Corporate-ify."
+
+Decode and Turbulence are mutually exclusive per site — switch between Off / Decode / Turbulence from the popup.
 
 No accounts, no tracking, no build step required.
 
@@ -33,8 +36,8 @@ Whichever provider you pick, your key and text are sent directly from your brows
 manifest.json            Manifest V3 config
 dictionary.json          Jargon ↔ plain-English dictionary (terms, fillers, openers)
 shared/corporateify.js   Shared matching/rewrite logic used by content script, popup, and background
-content/                 Decode mode: scans and highlights the page
-popup/                   Extension popup: per-site toggle, Corporate-ify box, AI settings
+content/                 Decode/Turbulence rendering: scans, highlights, shakes, seatbelt badge
+popup/                   Extension popup: per-site mode switch, Corporate-ify box, AI settings
 background/              Service worker: context menu, badge updates, AI Corporate-ify calls
 icons/                   16/48/128px extension icons
 scripts/package.sh       Builds a Chrome Web Store-ready zip into dist/
