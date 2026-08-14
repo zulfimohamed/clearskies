@@ -41,6 +41,8 @@ popup/                   Extension popup: per-site mode switch, Corporate-ify bo
 background/              Service worker: context menu, badge updates, AI Corporate-ify calls
 icons/                   16/48/128px extension icons
 scripts/package.sh       Builds a Chrome Web Store-ready zip into dist/
+site/                    Static privacy policy + landing page, deployed via Cloudflare Workers
+wrangler.toml            Config for deploying site/ as a static Worker (Cloudflare)
 ```
 
 ## Extending the dictionary
@@ -54,3 +56,13 @@ Add entries to `dictionary.json`'s `terms` array as `{ "jargon": "...", "plain":
 ```
 
 This produces `dist/clearskies-v<version>.zip` containing only the files the extension needs (no README, git metadata, or dev scripts). Upload that zip at the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole).
+
+## Hosting the privacy policy page
+
+The Chrome Web Store requires a privacy policy URL for extensions with broad host permissions (this one has `<all_urls>`). `site/` is a plain static page (`index.html` + `privacy.html`, built from [PRIVACY.md](./PRIVACY.md)) with no build step, deployed via Cloudflare Workers' static asset hosting:
+
+```
+npx wrangler deploy
+```
+
+`wrangler.toml` points it at `./site` — no `main` script needed, Wrangler serves the directory as-is. Paste the resulting `*.workers.dev` URL (or a custom domain) into the Chrome Web Store listing's privacy policy field.

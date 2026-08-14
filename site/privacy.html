@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ClearSkies — Privacy Policy</title>
+<style>
+  :root { color-scheme: light; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+    color: #1a202c;
+    line-height: 1.7;
+    background: #f7fafc;
+  }
+  h1 { font-size: 24px; margin-bottom: 4px; }
+  .updated { color: #718096; font-size: 13px; margin-bottom: 32px; }
+  h2 { font-size: 16px; margin-top: 32px; }
+  ul { padding-left: 20px; }
+  li { margin-bottom: 8px; }
+  code {
+    background: #edf2f7;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+  a { color: #3182ce; }
+  .badge {
+    display: inline-block;
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  footer {
+    margin-top: 48px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+    font-size: 13px;
+    color: #718096;
+  }
+</style>
+</head>
+<body>
+  <div class="badge">🌤️</div>
+  <h1>ClearSkies — Privacy Policy</h1>
+  <div class="updated">Last updated: August 14, 2026</div>
+
+  <p>ClearSkies doesn't have a backend, accounts, or analytics. It's a browser extension that highlights corporate jargon on web pages (Decode and Turbulence modes) and can rewrite your own text into exaggerated corporate phrasing (Corporate-ify mode). Specifically:</p>
+
+  <h2>Decode and Turbulence modes</h2>
+  <p>These read the visible text of pages you view, locally in your browser, to match it against a jargon dictionary bundled with the extension. Nothing is sent anywhere. Turbulence's optional "seatbelt chime" is a sound synthesized on-device with the Web Audio API — no audio file, no network request — and it is off by default.</p>
+
+  <h2>Corporate-ify — dictionary mode (default)</h2>
+  <p>Runs entirely locally using the bundled jargon dictionary. Nothing is sent anywhere.</p>
+
+  <h2>Corporate-ify — AI mode (opt-in)</h2>
+  <p>If you turn this on and enter your own API key, the text you choose to Corporate-ify is sent directly from your browser to whichever provider you selected:</p>
+  <ul>
+    <li>Anthropic (<code>api.anthropic.com</code>)</li>
+    <li>OpenRouter (<code>openrouter.ai</code>)</li>
+    <li>OpenAI (<code>api.openai.com</code>)</li>
+    <li>Google Gemini (<code>generativelanguage.googleapis.com</code>)</li>
+  </ul>
+  <p>This request goes straight from your browser to that provider — it does not pass through any ClearSkies server, because there isn't one.</p>
+
+  <h2>Your API key</h2>
+  <p>Stored only in <code>chrome.storage.local</code> on your device, and never transmitted anywhere except to authenticate requests you initiate to your chosen provider's API (as a header for Anthropic/OpenRouter/OpenAI, or as a URL parameter for Gemini, per Google's API design). Treat it like any other credential. Switching providers in the popup does not delete another provider's stored key — each is kept locally in case you switch back.</p>
+
+  <h2>What's stored locally</h2>
+  <p>Using <code>chrome.storage.local</code> only, never synced or transmitted elsewhere: your selected mode (Off / Decode / Turbulence) per site, whether AI mode is on, which provider is selected, and any API keys/model overrides you've entered.</p>
+
+  <h2>What ClearSkies never does</h2>
+  <ul>
+    <li>Never collects, stores, or transmits your browsing history</li>
+    <li>Never tracks clicks, keystrokes, or mouse movement</li>
+    <li>Never sells or shares data with third parties</li>
+    <li>Has no analytics and no accounts</li>
+  </ul>
+
+  <h2>Changes to this policy</h2>
+  <p>If ClearSkies adds features that change what data it accesses, this page will be updated first, and the change will be reflected in the extension's permissions and store listing.</p>
+
+  <h2>Contact</h2>
+  <p>Questions can be sent via the <a href="https://github.com/zulfimohamed/clearskies">GitHub repository</a> or the extension's Chrome Web Store support page.</p>
+
+  <footer>ClearSkies is an independent, non-commercial project.</footer>
+</body>
+</html>
