@@ -4,11 +4,16 @@
     "IFRAME", "OBJECT", "SVG", "CANVAS", "CODE", "PRE",
   ]);
   const TERM_CLASS = "clearskies-term";
-  const HOST_KEY = `clearskies_enabled_${location.hostname}`;
+  const MODE_KEY = `clearskies_mode_${location.hostname}`;
+  const SEVERE_THRESHOLD = 16;
+  const MODERATE_THRESHOLD = 6;
 
   let dictionary = null;
   let termRegex = null;
-  let enabled = true;
+  let mode = "decode"; // "off" | "decode" | "turbulence"
+  let turbulenceObserver = null;
+  let seatbeltEl = null;
+  let chimePlayedForThisLoad = false;
 
   function isEditable(node) {
     let el = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
@@ -22,7 +27,7 @@
   function shouldSkip(el) {
     if (!el) return true;
     if (SKIP_TAGS.has(el.tagName)) return true;
-    if (el.closest && el.closest(`.${TERM_CLASS}, .clearskies-toast, .clearskies-card`)) return true;
+    if (el.closest && el.closest(`.${TERM_CLASS}, .clearskies-toast, .clearskies-card, .clearskies-seatbelt`)) return true;
     return false;
   }
 
@@ -100,13 +105,116 @@
     chrome.runtime.sendMessage({ type: "CLEARSKIES_COUNT", count }).catch(() => {});
   }
 
-  function runScan() {
-    if (!enabled) {
+  function seatbeltStatus(count) {
+    if (count >= SEVERE_THRESHOLD) return { level: "severe", text: "Severe turbulence — brace for impact" };
+    if (count >= MODERATE_THRESHOLD) return { level: "moderate", text: "Moderate turbulence" };
+    if (count >= 1) return { level: "light", text: "Light chop" };
+    return { level: "clear", text: "Clear skies" };
+  }
+
+  function ensureSeatbeltBadge() {
+    if (seatbeltEl) return seatbeltEl;
+    seatbeltEl = document.createElement("div");
+    seatbeltEl.className = "clearskies-seatbelt";
+    document.body.appendChild(seatbeltEl);
+    return seatbeltEl;
+  }
+
+  function updateSeatbeltBadge(count) {
+    const badge = ensureSeatbeltBadge();
+    const status = seatbeltStatus(count);
+    badge.dataset.level = status.level;
+    badge.textContent = `✈️ ${status.text}`;
+  }
+
+  function removeSeatbeltBadge() {
+    if (seatbeltEl) {
+      seatbeltEl.remove();
+      seatbeltEl = null;
+    }
+  }
+
+  function playSeatbeltChime() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const now = ctx.currentTime;
+      [880, 660].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        const start = now + i * 0.4;
+        gain.gain.setValueAtTime(0, start);
+        gain.gain.linearRampToValueAtTime(0.2, start + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.55);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + 0.6);
+      });
+    } catch (e) {
+      // autoplay/audio restrictions — silently skip, this is an opt-in flourish
+    }
+  }
+
+  async function maybePlayChime(totalCount) {
+    if (chimePlayedForThisLoad || totalCount < SEVERE_THRESHOLD) return;
+    const { clearskies_chime_enabled } = await chrome.storage.local.get("clearskies_chime_enabled");
+    if (clearskies_chime_enabled) {
+      chimePlayedForThisLoad = true;
+      playSeatbeltChime();
+    }
+  }
+
+  function teardownTurbulence() {
+    if (turbulenceObserver) {
+      turbulenceObserver.disconnect();
+      turbulenceObserver = null;
+    }
+    removeSeatbeltBadge();
+  }
+
+  function initTurbulence(totalCount) {
+    const visibleTerms = new Set();
+    turbulenceObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            visibleTerms.add(entry.target);
+            entry.target.classList.remove("clearskies-shake");
+            void entry.target.offsetWidth; // restart the animation
+            entry.target.classList.add("clearskies-shake");
+          } else {
+            visibleTerms.delete(entry.target);
+          }
+        }
+        updateSeatbeltBadge(visibleTerms.size);
+      },
+      { threshold: 0.3 }
+    );
+
+    document.querySelectorAll(`.${TERM_CLASS}`).forEach((el) => turbulenceObserver.observe(el));
+    updateSeatbeltBadge(0);
+    maybePlayChime(totalCount);
+  }
+
+  function applyMode(newMode) {
+    teardownTurbulence();
+    removeHighlights();
+    document.documentElement.removeAttribute("data-clearskies-mode");
+    mode = newMode;
+
+    if (mode === "off") {
       reportCount(0);
       return;
     }
+
     const count = highlightPage();
+    document.documentElement.setAttribute("data-clearskies-mode", mode);
     reportCount(count);
+
+    if (mode === "turbulence") {
+      initTurbulence(count);
+    }
   }
 
   function showToast(message) {
@@ -158,27 +266,20 @@
     dictionary = await fetch(dictUrl).then((r) => r.json());
     termRegex = window.ClearSkies.buildTermRegex(dictionary.terms);
 
-    const stored = await chrome.storage.local.get(HOST_KEY);
-    enabled = stored[HOST_KEY] !== false;
-
-    runScan();
+    const stored = await chrome.storage.local.get(MODE_KEY);
+    const initialMode = stored[MODE_KEY] || "decode";
+    applyMode(initialMode);
   }
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.type === "CLEARSKIES_TOGGLE") {
-      enabled = message.enabled;
-      chrome.storage.local.set({ [HOST_KEY]: enabled });
-      if (enabled) {
-        runScan();
-      } else {
-        removeHighlights();
-        reportCount(0);
-      }
+    if (message.type === "CLEARSKIES_SET_MODE") {
+      chrome.storage.local.set({ [MODE_KEY]: message.mode });
+      applyMode(message.mode);
       sendResponse({ ok: true });
     }
 
     if (message.type === "CLEARSKIES_GET_STATE") {
-      sendResponse({ enabled });
+      sendResponse({ mode });
     }
 
     if (message.type === "CLEARSKIES_SHOW_CORPORATEIFY_RESULT") {
