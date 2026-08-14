@@ -11,7 +11,14 @@ No accounts, no tracking, no build step required.
 
 ### AI mode (optional)
 
-By default, Corporate-ify uses fast, local dictionary substitution — no network calls, no setup. If you want funnier, more context-aware rewrites, open the popup, flip on "Use Claude AI," and paste in your own [Anthropic API key](https://console.anthropic.com/settings/keys). Your key is stored only in `chrome.storage.local` on your device and used to call Anthropic's API directly from the browser — see [PRIVACY.md](./PRIVACY.md) for details. If AI mode is off, no key is set, or the request fails, it falls back to dictionary mode automatically.
+By default, Corporate-ify uses fast, local dictionary substitution — no network calls, no setup. If you want funnier, more context-aware rewrites, open the popup and flip on "✨ Use AI." Four providers are supported, each with their own key stored separately so switching back and forth never loses one:
+
+- **Claude (Anthropic)** — paste in your own [Anthropic API key](https://console.anthropic.com/settings/keys).
+- **OpenRouter (open-source models)** — paste in your own [OpenRouter API key](https://openrouter.ai/keys) and optionally a model slug from [openrouter.ai/models](https://openrouter.ai/models) (e.g. `meta-llama/llama-3.3-70b-instruct`, `mistralai/mistral-small`, `deepseek/deepseek-chat`); leave it blank to use the Llama 3.3 70B default.
+- **OpenAI** — paste in your own [OpenAI API key](https://platform.openai.com/api-keys); optional model field defaults to `gpt-4o-mini`.
+- **Gemini (Google)** — paste in your own [Gemini API key](https://aistudio.google.com/apikey); optional model field defaults to `gemini-2.0-flash`.
+
+Whichever provider you pick, your key and text are sent directly from your browser to that provider's API — never through us — and the key is stored only in `chrome.storage.local` on your device. See [PRIVACY.md](./PRIVACY.md) for details. If AI mode is off, no key is set, or the request fails, Corporate-ify falls back to dictionary mode automatically.
 
 ## Load it locally (unpacked)
 
