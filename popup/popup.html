@@ -34,14 +34,34 @@
     <button id="corporateify-btn" class="primary-btn">Corporate-ify</button>
 
     <div id="output-wrap" class="output-wrap hidden">
+      <div class="output-label" id="output-label"></div>
       <div id="output-text" class="output-text"></div>
       <button id="copy-btn" class="secondary-btn">Copy</button>
     </div>
   </section>
 
+  <section class="section">
+    <div class="row">
+      <div>
+        <div class="row-title">✨ Use Claude AI</div>
+        <div class="row-sub">Smarter, funnier rewrites instead of dictionary swaps</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="toggle-ai" />
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div id="ai-key-wrap" class="ai-key-wrap hidden">
+      <input type="password" id="ai-key-input" placeholder="sk-ant-..." autocomplete="off" />
+      <p class="row-sub">
+        Stored only on this device and sent directly to Anthropic's API — never through us.
+        Get a key at console.anthropic.com/settings/keys
+      </p>
+    </div>
+  </section>
+
   <footer class="footer">No accounts. No tracking. Just fog.</footer>
 
-  <script src="../shared/corporateify.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

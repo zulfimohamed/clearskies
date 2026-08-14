@@ -5,10 +5,12 @@
   const inputText = document.getElementById("input-text");
   const corporateifyBtn = document.getElementById("corporateify-btn");
   const outputWrap = document.getElementById("output-wrap");
+  const outputLabel = document.getElementById("output-label");
   const outputText = document.getElementById("output-text");
   const copyBtn = document.getElementById("copy-btn");
-
-  const dictionary = await fetch(chrome.runtime.getURL("dictionary.json")).then((r) => r.json());
+  const toggleAi = document.getElementById("toggle-ai");
+  const aiKeyWrap = document.getElementById("ai-key-wrap");
+  const aiKeyInput = document.getElementById("ai-key-input");
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   const isScriptable = tab && tab.url && /^https?:\/\//.test(tab.url);
@@ -54,12 +56,39 @@
     }
   });
 
-  corporateifyBtn.addEventListener("click", () => {
+  const aiSettings = await chrome.storage.local.get(["clearskies_ai_enabled", "clearskies_api_key"]);
+  toggleAi.checked = !!aiSettings.clearskies_ai_enabled;
+  aiKeyInput.value = aiSettings.clearskies_api_key || "";
+  aiKeyWrap.classList.toggle("hidden", !toggleAi.checked);
+
+  toggleAi.addEventListener("change", () => {
+    aiKeyWrap.classList.toggle("hidden", !toggleAi.checked);
+    chrome.storage.local.set({ clearskies_ai_enabled: toggleAi.checked });
+  });
+
+  aiKeyInput.addEventListener("change", () => {
+    chrome.storage.local.set({ clearskies_api_key: aiKeyInput.value.trim() });
+  });
+
+  corporateifyBtn.addEventListener("click", async () => {
     const text = inputText.value.trim();
     if (!text) return;
-    const result = window.ClearSkies.corporateify(text, dictionary);
+
+    corporateifyBtn.disabled = true;
+    corporateifyBtn.textContent = "Corporate-ifying…";
+
+    const { result, source, aiError } = await chrome.runtime.sendMessage({
+      type: "CLEARSKIES_CORPORATEIFY_REQUEST",
+      text,
+    });
+
+    outputLabel.textContent = source === "ai" ? "✨ AI-generated" : "📖 Dictionary-based";
+    if (aiError) outputLabel.textContent += " (AI unavailable, fell back)";
     outputText.textContent = result;
     outputWrap.classList.remove("hidden");
+
+    corporateifyBtn.disabled = false;
+    corporateifyBtn.textContent = "Corporate-ify";
   });
 
   copyBtn.addEventListener("click", async () => {

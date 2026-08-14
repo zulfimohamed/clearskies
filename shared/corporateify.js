@@ -1,5 +1,5 @@
-// Shared dictionary helpers, used by both the content script and the popup.
-// Exposes a single global: window.ClearSkies
+// Shared dictionary helpers, used by the content script, popup, and background service worker.
+// Exposes a single global: globalThis.ClearSkies
 (function () {
   function escapeRegExp(str) {
     return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -66,7 +66,7 @@
     return result;
   }
 
-  window.ClearSkies = {
+  globalThis.ClearSkies = {
     buildTermRegex,
     findJargonAt,
     corporateify,
