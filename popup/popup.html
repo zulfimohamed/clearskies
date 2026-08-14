@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ClearSkies</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header class="header">
+    <span class="logo">🌤️</span>
+    <div>
+      <h1>ClearSkies</h1>
+      <p class="tagline">Cut through the corporate fog</p>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="row">
+      <div>
+        <div class="row-title">Decode on this site</div>
+        <div class="row-sub" id="site-label">this page</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="toggle-decode" />
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="row-sub" id="jargon-count"></div>
+  </section>
+
+  <section class="section">
+    <div class="row-title">Corporate-ify</div>
+    <textarea id="input-text" placeholder="Paste your plain English here…" rows="4"></textarea>
+    <button id="corporateify-btn" class="primary-btn">Corporate-ify</button>
+
+    <div id="output-wrap" class="output-wrap hidden">
+      <div id="output-text" class="output-text"></div>
+      <button id="copy-btn" class="secondary-btn">Copy</button>
+    </div>
+  </section>
+
+  <footer class="footer">No accounts. No tracking. Just fog.</footer>
+
+  <script src="../shared/corporateify.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
