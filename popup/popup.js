@@ -9,8 +9,13 @@
   const outputText = document.getElementById("output-text");
   const copyBtn = document.getElementById("copy-btn");
   const toggleAi = document.getElementById("toggle-ai");
-  const aiKeyWrap = document.getElementById("ai-key-wrap");
+  const aiSettingsWrap = document.getElementById("ai-settings");
+  const providerSelect = document.getElementById("provider-select");
+  const anthropicKeyWrap = document.getElementById("anthropic-key-wrap");
   const aiKeyInput = document.getElementById("ai-key-input");
+  const openrouterKeyWrap = document.getElementById("openrouter-key-wrap");
+  const openrouterKeyInput = document.getElementById("openrouter-key-input");
+  const openrouterModelInput = document.getElementById("openrouter-model-input");
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   const isScriptable = tab && tab.url && /^https?:\/\//.test(tab.url);
@@ -56,18 +61,50 @@
     }
   });
 
-  const aiSettings = await chrome.storage.local.get(["clearskies_ai_enabled", "clearskies_api_key"]);
+  const aiSettings = await chrome.storage.local.get([
+    "clearskies_ai_enabled",
+    "clearskies_ai_provider",
+    "clearskies_api_key",
+    "clearskies_openrouter_key",
+    "clearskies_openrouter_model",
+  ]);
+
+  const provider = aiSettings.clearskies_ai_provider || "anthropic";
+
   toggleAi.checked = !!aiSettings.clearskies_ai_enabled;
+  providerSelect.value = provider;
   aiKeyInput.value = aiSettings.clearskies_api_key || "";
-  aiKeyWrap.classList.toggle("hidden", !toggleAi.checked);
+  openrouterKeyInput.value = aiSettings.clearskies_openrouter_key || "";
+  openrouterModelInput.value = aiSettings.clearskies_openrouter_model || "";
+
+  function renderAiSettingsVisibility() {
+    aiSettingsWrap.classList.toggle("hidden", !toggleAi.checked);
+    const isOpenRouter = providerSelect.value === "openrouter";
+    anthropicKeyWrap.classList.toggle("hidden", isOpenRouter);
+    openrouterKeyWrap.classList.toggle("hidden", !isOpenRouter);
+  }
+  renderAiSettingsVisibility();
 
   toggleAi.addEventListener("change", () => {
-    aiKeyWrap.classList.toggle("hidden", !toggleAi.checked);
+    renderAiSettingsVisibility();
     chrome.storage.local.set({ clearskies_ai_enabled: toggleAi.checked });
+  });
+
+  providerSelect.addEventListener("change", () => {
+    renderAiSettingsVisibility();
+    chrome.storage.local.set({ clearskies_ai_provider: providerSelect.value });
   });
 
   aiKeyInput.addEventListener("change", () => {
     chrome.storage.local.set({ clearskies_api_key: aiKeyInput.value.trim() });
+  });
+
+  openrouterKeyInput.addEventListener("change", () => {
+    chrome.storage.local.set({ clearskies_openrouter_key: openrouterKeyInput.value.trim() });
+  });
+
+  openrouterModelInput.addEventListener("change", () => {
+    chrome.storage.local.set({ clearskies_openrouter_model: openrouterModelInput.value.trim() });
   });
 
   corporateifyBtn.addEventListener("click", async () => {

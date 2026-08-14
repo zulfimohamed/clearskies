@@ -43,7 +43,7 @@
   <section class="section">
     <div class="row">
       <div>
-        <div class="row-title">✨ Use Claude AI</div>
+        <div class="row-title">✨ Use AI</div>
         <div class="row-sub">Smarter, funnier rewrites instead of dictionary swaps</div>
       </div>
       <label class="switch">
@@ -51,12 +51,35 @@
         <span class="slider"></span>
       </label>
     </div>
-    <div id="ai-key-wrap" class="ai-key-wrap hidden">
-      <input type="password" id="ai-key-input" placeholder="sk-ant-..." autocomplete="off" />
-      <p class="row-sub">
-        Stored only on this device and sent directly to Anthropic's API — never through us.
-        Get a key at console.anthropic.com/settings/keys
-      </p>
+
+    <div id="ai-settings" class="ai-settings hidden">
+      <select id="provider-select" class="provider-select">
+        <option value="anthropic">Claude (Anthropic)</option>
+        <option value="openrouter">OpenRouter (open-source models)</option>
+      </select>
+
+      <div id="anthropic-key-wrap" class="ai-key-wrap hidden">
+        <input type="password" id="ai-key-input" placeholder="sk-ant-..." autocomplete="off" />
+        <p class="row-sub">
+          Stored only on this device and sent directly to Anthropic's API — never through us.
+          Get a key at console.anthropic.com/settings/keys
+        </p>
+      </div>
+
+      <div id="openrouter-key-wrap" class="ai-key-wrap hidden">
+        <input type="password" id="openrouter-key-input" placeholder="sk-or-..." autocomplete="off" />
+        <input
+          type="text"
+          id="openrouter-model-input"
+          placeholder="meta-llama/llama-3.3-70b-instruct"
+          autocomplete="off"
+        />
+        <p class="row-sub">
+          Stored only on this device and sent directly to OpenRouter's API — never through us.
+          Get a key at openrouter.ai/keys, and pick any model slug from openrouter.ai/models
+          (defaults to Llama 3.3 70B if left blank).
+        </p>
+      </div>
     </div>
   </section>
 

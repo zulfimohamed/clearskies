@@ -160,6 +160,25 @@ textarea {
   margin-bottom: 4px;
 }
 
+.ai-settings {
+  margin-top: 10px;
+}
+
+.ai-settings.hidden {
+  display: none;
+}
+
+.provider-select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  background: #fff;
+  color: #1a202c;
+}
+
 .ai-key-wrap {
   margin-top: 10px;
 }
@@ -175,6 +194,7 @@ textarea {
   border-radius: 8px;
   font-size: 13px;
   font-family: inherit;
+  margin-bottom: 6px;
 }
 
 .ai-key-wrap .row-sub {

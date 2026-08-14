@@ -1,8 +1,18 @@
 importScripts("../shared/corporateify.js");
 
 const CONTEXT_MENU_ID = "clearskies-corporateify";
-const AI_MODEL = "claude-haiku-4-5-20251001";
-const AI_ENDPOINT = "https://api.anthropic.com/v1/messages";
+
+const ANTHROPIC_MODEL = "claude-haiku-4-5-20251001";
+const ANTHROPIC_ENDPOINT = "https://api.anthropic.com/v1/messages";
+
+const OPENROUTER_DEFAULT_MODEL = "meta-llama/llama-3.3-70b-instruct";
+const OPENROUTER_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
+
+const PROMPT_PREFIX =
+  "Rewrite the following text in over-the-top, insufferable corporate consultant jargon. " +
+  "Keep it roughly the same length, make it sound self-important and buzzword-heavy, and it " +
+  "should still be recognizable as the same message. Respond with ONLY the rewritten text, " +
+  "no preamble, no quotes, no explanation.\n\n";
 
 const dictionaryPromise = fetch(chrome.runtime.getURL("dictionary.json")).then((r) => r.json());
 
@@ -14,8 +24,8 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-async function callClaude(apiKey, text) {
-  const res = await fetch(AI_ENDPOINT, {
+async function callAnthropic(apiKey, text) {
+  const res = await fetch(ANTHROPIC_ENDPOINT, {
     method: "POST",
     headers: {
       "content-type": "application/json",
@@ -24,19 +34,9 @@ async function callClaude(apiKey, text) {
       "anthropic-dangerous-direct-browser-access": "true",
     },
     body: JSON.stringify({
-      model: AI_MODEL,
+      model: ANTHROPIC_MODEL,
       max_tokens: 300,
-      messages: [
-        {
-          role: "user",
-          content:
-            "Rewrite the following text in over-the-top, insufferable corporate consultant jargon. " +
-            "Keep it roughly the same length, make it sound self-important and buzzword-heavy, and it " +
-            'should still be recognizable as the same message. Respond with ONLY the rewritten text, ' +
-            "no preamble, no quotes, no explanation.\n\n" +
-            text,
-        },
-      ],
+      messages: [{ role: "user", content: PROMPT_PREFIX + text }],
     }),
   });
 
@@ -46,21 +46,60 @@ async function callClaude(apiKey, text) {
   }
 
   const data = await res.json();
-  const text_ = data.content && data.content[0] && data.content[0].text;
-  if (!text_) throw new Error("Anthropic API returned no text");
-  return text_.trim();
+  const result = data.content && data.content[0] && data.content[0].text;
+  if (!result) throw new Error("Anthropic API returned no text");
+  return result.trim();
+}
+
+async function callOpenRouter(apiKey, model, text) {
+  const res = await fetch(OPENROUTER_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${apiKey}`,
+      "HTTP-Referer": "https://github.com/zulfimohamed/clearskies",
+      "X-Title": "ClearSkies",
+    },
+    body: JSON.stringify({
+      model: model || OPENROUTER_DEFAULT_MODEL,
+      max_tokens: 300,
+      messages: [{ role: "user", content: PROMPT_PREFIX + text }],
+    }),
+  });
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`OpenRouter API error ${res.status}: ${body.slice(0, 200)}`);
+  }
+
+  const data = await res.json();
+  const result = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+  if (!result) throw new Error("OpenRouter API returned no text");
+  return result.trim();
 }
 
 async function corporateifySmart(text) {
   const dictionary = await dictionaryPromise;
-  const { clearskies_ai_enabled, clearskies_api_key } = await chrome.storage.local.get([
+  const settings = await chrome.storage.local.get([
     "clearskies_ai_enabled",
+    "clearskies_ai_provider",
     "clearskies_api_key",
+    "clearskies_openrouter_key",
+    "clearskies_openrouter_model",
   ]);
 
-  if (clearskies_ai_enabled && clearskies_api_key) {
+  const provider = settings.clearskies_ai_provider || "anthropic";
+
+  if (settings.clearskies_ai_enabled) {
     try {
-      const result = await callClaude(clearskies_api_key, text);
+      let result;
+      if (provider === "openrouter") {
+        if (!settings.clearskies_openrouter_key) throw new Error("No OpenRouter API key set");
+        result = await callOpenRouter(settings.clearskies_openrouter_key, settings.clearskies_openrouter_model, text);
+      } else {
+        if (!settings.clearskies_api_key) throw new Error("No Anthropic API key set");
+        result = await callAnthropic(settings.clearskies_api_key, text);
+      }
       return { result, source: "ai" };
     } catch (e) {
       return {
