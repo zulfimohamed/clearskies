@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ClearSkies — Corporate Jargon Translator",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Decodes corporate buzzwords on any page, and translates your plain English into insufferable consultant-speak.",
   "icons": {
     "16": "icons/icon16.png",

@@ -11,11 +11,41 @@
   const toggleAi = document.getElementById("toggle-ai");
   const aiSettingsWrap = document.getElementById("ai-settings");
   const providerSelect = document.getElementById("provider-select");
-  const anthropicKeyWrap = document.getElementById("anthropic-key-wrap");
-  const aiKeyInput = document.getElementById("ai-key-input");
-  const openrouterKeyWrap = document.getElementById("openrouter-key-wrap");
-  const openrouterKeyInput = document.getElementById("openrouter-key-input");
-  const openrouterModelInput = document.getElementById("openrouter-model-input");
+
+  const PROVIDER_FIELDS = {
+    anthropic: {
+      wrapId: "anthropic-key-wrap",
+      keyInputId: "ai-key-input",
+      keyStorage: "clearskies_api_key",
+    },
+    openrouter: {
+      wrapId: "openrouter-key-wrap",
+      keyInputId: "openrouter-key-input",
+      keyStorage: "clearskies_openrouter_key",
+      modelInputId: "openrouter-model-input",
+      modelStorage: "clearskies_openrouter_model",
+    },
+    openai: {
+      wrapId: "openai-key-wrap",
+      keyInputId: "openai-key-input",
+      keyStorage: "clearskies_openai_key",
+      modelInputId: "openai-model-input",
+      modelStorage: "clearskies_openai_model",
+    },
+    gemini: {
+      wrapId: "gemini-key-wrap",
+      keyInputId: "gemini-key-input",
+      keyStorage: "clearskies_gemini_key",
+      modelInputId: "gemini-model-input",
+      modelStorage: "clearskies_gemini_model",
+    },
+  };
+
+  for (const field of Object.values(PROVIDER_FIELDS)) {
+    field.wrapEl = document.getElementById(field.wrapId);
+    field.keyEl = document.getElementById(field.keyInputId);
+    if (field.modelInputId) field.modelEl = document.getElementById(field.modelInputId);
+  }
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   const isScriptable = tab && tab.url && /^https?:\/\//.test(tab.url);
@@ -61,27 +91,27 @@
     }
   });
 
-  const aiSettings = await chrome.storage.local.get([
-    "clearskies_ai_enabled",
-    "clearskies_ai_provider",
-    "clearskies_api_key",
-    "clearskies_openrouter_key",
-    "clearskies_openrouter_model",
-  ]);
+  const storageKeys = ["clearskies_ai_enabled", "clearskies_ai_provider"];
+  for (const field of Object.values(PROVIDER_FIELDS)) {
+    storageKeys.push(field.keyStorage);
+    if (field.modelStorage) storageKeys.push(field.modelStorage);
+  }
+  const aiSettings = await chrome.storage.local.get(storageKeys);
 
   const provider = aiSettings.clearskies_ai_provider || "anthropic";
-
   toggleAi.checked = !!aiSettings.clearskies_ai_enabled;
   providerSelect.value = provider;
-  aiKeyInput.value = aiSettings.clearskies_api_key || "";
-  openrouterKeyInput.value = aiSettings.clearskies_openrouter_key || "";
-  openrouterModelInput.value = aiSettings.clearskies_openrouter_model || "";
+
+  for (const field of Object.values(PROVIDER_FIELDS)) {
+    field.keyEl.value = aiSettings[field.keyStorage] || "";
+    if (field.modelEl) field.modelEl.value = aiSettings[field.modelStorage] || "";
+  }
 
   function renderAiSettingsVisibility() {
     aiSettingsWrap.classList.toggle("hidden", !toggleAi.checked);
-    const isOpenRouter = providerSelect.value === "openrouter";
-    anthropicKeyWrap.classList.toggle("hidden", isOpenRouter);
-    openrouterKeyWrap.classList.toggle("hidden", !isOpenRouter);
+    for (const [name, field] of Object.entries(PROVIDER_FIELDS)) {
+      field.wrapEl.classList.toggle("hidden", name !== providerSelect.value);
+    }
   }
   renderAiSettingsVisibility();
 
@@ -95,17 +125,16 @@
     chrome.storage.local.set({ clearskies_ai_provider: providerSelect.value });
   });
 
-  aiKeyInput.addEventListener("change", () => {
-    chrome.storage.local.set({ clearskies_api_key: aiKeyInput.value.trim() });
-  });
-
-  openrouterKeyInput.addEventListener("change", () => {
-    chrome.storage.local.set({ clearskies_openrouter_key: openrouterKeyInput.value.trim() });
-  });
-
-  openrouterModelInput.addEventListener("change", () => {
-    chrome.storage.local.set({ clearskies_openrouter_model: openrouterModelInput.value.trim() });
-  });
+  for (const field of Object.values(PROVIDER_FIELDS)) {
+    field.keyEl.addEventListener("change", () => {
+      chrome.storage.local.set({ [field.keyStorage]: field.keyEl.value.trim() });
+    });
+    if (field.modelEl) {
+      field.modelEl.addEventListener("change", () => {
+        chrome.storage.local.set({ [field.modelStorage]: field.modelEl.value.trim() });
+      });
+    }
+  }
 
   corporateifyBtn.addEventListener("click", async () => {
     const text = inputText.value.trim();
