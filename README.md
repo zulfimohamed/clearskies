@@ -9,6 +9,10 @@ A Chrome extension that translates corporate jargon on any page — and, in reve
 
 No accounts, no tracking, no build step required.
 
+### AI mode (optional)
+
+By default, Corporate-ify uses fast, local dictionary substitution — no network calls, no setup. If you want funnier, more context-aware rewrites, open the popup, flip on "Use Claude AI," and paste in your own [Anthropic API key](https://console.anthropic.com/settings/keys). Your key is stored only in `chrome.storage.local` on your device and used to call Anthropic's API directly from the browser — see [PRIVACY.md](./PRIVACY.md) for details. If AI mode is off, no key is set, or the request fails, it falls back to dictionary mode automatically.
+
 ## Load it locally (unpacked)
 
 1. Open `chrome://extensions`
@@ -19,15 +23,24 @@ No accounts, no tracking, no build step required.
 ## Project structure
 
 ```
-manifest.json           Manifest V3 config
+manifest.json            Manifest V3 config
 dictionary.json          Jargon ↔ plain-English dictionary (terms, fillers, openers)
-shared/corporateify.js   Shared matching/rewrite logic used by content script + popup
+shared/corporateify.js   Shared matching/rewrite logic used by content script, popup, and background
 content/                 Decode mode: scans and highlights the page
-popup/                   Extension popup: per-site toggle + Corporate-ify box
-background/              Service worker: context menu + badge updates
+popup/                   Extension popup: per-site toggle, Corporate-ify box, AI settings
+background/              Service worker: context menu, badge updates, AI Corporate-ify calls
 icons/                   16/48/128px extension icons
+scripts/package.sh       Builds a Chrome Web Store-ready zip into dist/
 ```
 
 ## Extending the dictionary
 
 Add entries to `dictionary.json`'s `terms` array as `{ "jargon": "...", "plain": "..." }` pairs. Decode mode matches on `jargon`; Corporate-ify matches on `plain` and substitutes `jargon`.
+
+## Packaging for the Chrome Web Store
+
+```
+./scripts/package.sh
+```
+
+This produces `dist/clearskies-v<version>.zip` containing only the files the extension needs (no README, git metadata, or dev scripts). Upload that zip at the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole).

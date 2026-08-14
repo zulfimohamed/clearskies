@@ -122,14 +122,16 @@
     }, 2400);
   }
 
-  function showCorporateifyCard(original, result) {
+  function showCorporateifyCard(result, source) {
     document.querySelectorAll(".clearskies-card").forEach((c) => c.remove());
 
+    const badge = source === "ai" ? "✨ AI" : "📖 Dictionary";
     const card = document.createElement("div");
     card.className = "clearskies-card";
     card.innerHTML = `
       <div class="clearskies-card-header">
         <span>🌤️ Corporate-ified</span>
+        <span class="clearskies-card-badge">${badge}</span>
         <button class="clearskies-card-close" aria-label="Close">×</button>
       </div>
       <div class="clearskies-card-body"></div>
@@ -179,13 +181,11 @@
       sendResponse({ enabled });
     }
 
-    if (message.type === "CLEARSKIES_CORPORATEIFY_SELECTION") {
-      if (!dictionary) {
-        sendResponse({ ok: false });
-        return;
+    if (message.type === "CLEARSKIES_SHOW_CORPORATEIFY_RESULT") {
+      showCorporateifyCard(message.result, message.source);
+      if (message.aiError) {
+        showToast("AI unavailable — used dictionary mode instead");
       }
-      const result = window.ClearSkies.corporateify(message.text, dictionary);
-      showCorporateifyCard(message.text, result);
       sendResponse({ ok: true });
     }
 

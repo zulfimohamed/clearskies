@@ -151,6 +151,37 @@ textarea {
   display: none;
 }
 
+.output-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #4299e1;
+  margin-bottom: 4px;
+}
+
+.ai-key-wrap {
+  margin-top: 10px;
+}
+
+.ai-key-wrap.hidden {
+  display: none;
+}
+
+.ai-key-wrap input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.ai-key-wrap .row-sub {
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
 .output-text {
   background: #f7fafc;
   border: 1px solid #e2e8f0;
