@@ -1,0 +1,129 @@
+.clearskies-term {
+  position: relative;
+  text-decoration: underline dotted;
+  text-decoration-color: #4299e1;
+  text-underline-offset: 2px;
+  cursor: help;
+}
+
+.clearskies-term:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%);
+  background: #1a202c;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: normal;
+  width: max-content;
+  max-width: 240px;
+  z-index: 2147483647;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  pointer-events: none;
+}
+
+.clearskies-term:hover::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #1a202c;
+  z-index: 2147483647;
+  pointer-events: none;
+}
+
+.clearskies-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #1a202c;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  z-index: 2147483647;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.clearskies-toast-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.clearskies-card {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 320px;
+  max-width: calc(100vw - 48px);
+  background: #fff;
+  color: #1a202c;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  z-index: 2147483647;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.clearskies-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #4299e1;
+  color: #fff;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.clearskies-card-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.clearskies-card-body {
+  padding: 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  max-height: 200px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+.clearskies-card-actions {
+  padding: 10px 14px 14px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.clearskies-card-copy {
+  background: #4299e1;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.clearskies-card-copy:hover {
+  background: #3182ce;
+}
